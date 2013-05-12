@@ -1,4 +1,5 @@
 # Forager
+[![Build Status](https://travis-ci.org/jmdeldin/forager.png)](https://travis-ci.org/jmdeldin/forager)
 
 Forager is a proof-of-concept search engine in Clojure. I am writing it
 for my NLP independent study's final project. The goal is to get a
