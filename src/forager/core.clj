@@ -17,7 +17,9 @@
 (defn tokenize
   "Splits a document into a sequence of terms."
   [document]
-  (string/split document #"\s+"))
+  (if (= (.length document) 0)
+    []
+    (string/split document #"\s+")))
 
 (defn -main [& args]
   (read-file (relative->absolute "data/queries.txt")))
