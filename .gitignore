@@ -5,3 +5,5 @@ pom.xml
 /targets/
 repl-port
 .lein-*
+data/
+target/
