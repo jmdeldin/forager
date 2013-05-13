@@ -9,6 +9,8 @@
     (is (empty? (tokenize "")))))
 
 (deftest test-normalization
+  (testing "removes excess whitespace"
+    (is (= "foo" (normalize-term "\n\r foo\t "))))
   (testing "downcases words"
     (is (= "foo" (normalize-term "FOO"))))
   (testing "stemming words"

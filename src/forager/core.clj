@@ -24,7 +24,7 @@
 
 (def normalizers
   "Vector of functions to apply successively to a term."
-  [clojure.string/lower-case porter/stem])
+  [clojure.string/trim clojure.string/lower-case porter/stem])
 
 (defn normalize-term
   "Applies a series of transformations to a term."
