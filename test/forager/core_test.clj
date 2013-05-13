@@ -7,3 +7,13 @@
     (is (= '("foo" "bar" "baz") (tokenize "foo bar baz")))
     (is (= '("foo") (tokenize "foo")))
     (is (empty? (tokenize "")))))
+
+(deftest test-normalization
+  (testing "downcases words"
+    (is (= "foo" (normalize-term "FOO"))))
+  (testing "stemming words"
+    (is (= "argu" (normalize-term "arguing"))))
+  (testing "operating on a collection of terms"
+    (let [input '("FOO" "ARGUING" "BAR")
+          exp '("foo" "argu" "bar")]
+      (is (= exp (normalize input))))))

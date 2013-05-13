@@ -3,5 +3,6 @@
   :url "https://github.com/jmdeldin/forager"
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
-  :dependencies [[org.clojure/clojure "1.5.1"]]
+  :dependencies [[org.clojure/clojure "1.5.1"]
+                 [stemmers            "0.2.1"]]
   :main forager.core)
