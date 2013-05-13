@@ -17,3 +17,17 @@
     (let [input '("FOO" "ARGUING" "BAR")
           exp '("foo" "argu" "bar")]
       (is (= exp (normalize input))))))
+
+(deftest test-sorted-upsert
+  (testing "into an empty hashmap"
+    (is (= {"term" #{1}} (sorted-upsert {} "term" 1))))
+  (testing "into a non-empty hashmap"
+    (let [existing {"term" (sorted-set 1 8)}]
+      (is (= {"term" #{1 2 8}} (sorted-upsert existing "term" 2))))))
+
+(deftest test-index-document
+  (let [doc-id 1
+        exp-keys (set '("foo" "bar"))
+        exp-docs #{doc-id}
+        dict {}]
+    (is (= exp-keys (set (keys (index-document "foo bar" doc-id dict)))))))
