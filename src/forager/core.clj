@@ -51,5 +51,39 @@
             index
             tokens)))
 
+(defn list-directory
+  "Returns a list of all files in a directory."
+  [directory]
+  ;; file-seq is lazy -- we want all of the files at once
+  (doall (file-seq (io/file directory))))
+
+(defstruct Database :ids :filenames :last-id)
+
+(defn make-database
+  "Returns a bidirectional struct enabling both ID and filename lookups."
+  [directory]
+  (reduce (fn [mod-db file]
+            (let [new-id (inc (get mod-db :last-id 0))
+                  filename (str file)]
+              (struct Database
+                      (assoc (get mod-db :ids) new-id filename)
+                      (assoc (get mod-db :filenames) filename new-id)
+                      new-id)))
+          (struct Database {} {} 0)
+          (list-directory directory)))
+
+(defn filename->id
+  "Returns a filename's ID."
+  [database filename]
+  (get (get database :filenames) filename))
+
+(defn id->filename
+  "Returns an ID's filename."
+  [database id]
+  (get (get database :ids) id))
+
 (defn -main [& args]
-  (read-file (relative->absolute "data/queries.txt")))
+  (let [db (make-database (relative->absolute "data/RiderHaggard/raw"))]
+    (println "RESULTS")
+    (println (filename->id db "/vagrant/src/forager/data/RiderHaggard/raw/Moon of Israel 2856.txt"))
+    (println (id->filename db 32))))
