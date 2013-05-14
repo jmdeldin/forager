@@ -121,24 +121,12 @@
    terms
    #{}))
 
-;; (defn conjunction
-;;   "Private API for performing a Boolean-AND query."
-;;   [index terms]
-;;   (retrieve index terms
-;;             (fn [old-ids new-ids] (clojure.set/intersection old-ids new-ids))
-;;             (fn [old-ids] #{})))
 (defn conjunction
   "Private API for performing a Boolean-AND query."
-  ([index terms] (conjunction index terms #{}))
-  ([index terms matched-docs]
-     (if (empty? terms) matched-docs
-         (if-let [doc-ids (get index (stem (first terms)))]
-           (recur index
-                  (rest terms)
-                  (if (empty? matched-docs)
-                    doc-ids
-                    (clojure.set/intersection matched-docs doc-ids)))
-                      (recur index (rest terms) #{})))))
+  [index terms]
+  (retrieve index terms
+            (fn [old-ids new-ids] (clojure.set/intersection old-ids new-ids))
+            (fn [old-ids] #{})))
 
 (defn disjunction
   "Private API for performing a Boolean-OR query."
