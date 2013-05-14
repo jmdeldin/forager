@@ -58,6 +58,13 @@
             index
             tokens)))
 
+(defn index-lines
+  "Indexes a list of lines."
+  [lines doc-id index]
+  (reduce (fn [mod-index line] (index-document line doc-id mod-index))
+          index
+          lines))
+
 (defn list-directory
   "Returns a list of all files in a directory."
   [directory]

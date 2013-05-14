@@ -40,3 +40,9 @@
       (is (= exp-keys (set (keys (index-document "foo bar" doc-id dict)))))))
   (testing "indexing an empty string"
     (is (= {} (index-document "" 1 {})))))
+
+(deftest test-index-lines
+  (testing "indexing a list of strings belonging to a document"
+    (let [doc-id 1
+          exp-keys (set '("foo" "bar"))]
+      (is (= exp-keys (set (keys (index-lines '("foo" "bar") doc-id {}))))))))
