@@ -47,9 +47,8 @@
 (defn sorted-upsert
   "Associates a key with a value stored in a sorted-set."
   [index key value]
-  (if-let [ids (get index key)]
-    (assoc index key (conj ids value))
-    (assoc index key (sorted-set value))))
+  (let [ids (get index key (sorted-set))]
+    (assoc index key (conj ids value))))
 
 (defn index-document
   "Adds a documents terms to an index and returns the index."
