@@ -51,7 +51,7 @@
     (assoc index key (conj ids value))))
 
 (defn index-document
-  "Adds a documents terms to an index and returns the index."
+  "Adds a documents terms to an inverted index and returns the index."
   [document doc-id index]
   (let [tokens (normalize (tokenize document))]
     (reduce (fn [mod-index term] (sorted-upsert mod-index term doc-id))
