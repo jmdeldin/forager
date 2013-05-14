@@ -32,8 +32,11 @@
       (is (= {"term" #{1 2 8}} (sorted-upsert existing "term" 2))))))
 
 (deftest test-index-document
-  (let [doc-id 1
-        exp-keys (set '("foo" "bar"))
-        exp-docs #{doc-id}
-        dict {}]
-    (is (= exp-keys (set (keys (index-document "foo bar" doc-id dict)))))))
+  (testing "indexing a short string"
+    (let [doc-id 1
+          exp-keys (set '("foo" "bar"))
+          exp-docs #{doc-id}
+          dict {}]
+      (is (= exp-keys (set (keys (index-document "foo bar" doc-id dict)))))))
+  (testing "indexing an empty string"
+    (is (= {} (index-document "" 1 {})))))
