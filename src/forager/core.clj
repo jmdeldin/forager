@@ -1,6 +1,7 @@
 (ns forager.core
   (:require [clojure.java.io :as io]
             [clojure.string  :as string]
+            [clojure.set]
             [stemmers.porter :as porter]))
 
 (defn read-file
@@ -27,12 +28,17 @@
   [term]
   (clojure.string/replace term #"[^a-zA-Z0-9]" ""))
 
+(defn stem
+  "Reduces a word to its root."
+  [word]
+  (porter/stem word))
+
 (def normalizers
   "Vector of functions to apply successively to a term."
   [clojure.string/trim
    clojure.string/lower-case
    remove-nonalphanumerics
-   porter/stem])
+   stem])
 
 (defn normalize-term
   "Applies a series of transformations to a term."
@@ -95,6 +101,24 @@
   "Returns an ID's filename."
   [database id]
   (get (get database :ids) id))
+
+(defn conjunction
+  "Private API for performing a Boolean-AND query."
+  ([index terms] (conjunction index terms #{}))
+  ([index terms matched-docs]
+     (if (empty? terms) matched-docs
+         (if-let [doc-ids (get index (stem (first terms)))]
+           (recur index
+                  (rest terms)
+                  (if (empty? matched-docs)
+                    doc-ids
+                    (clojure.set/intersection matched-docs doc-ids)))
+           (recur index (rest terms) #{})))))
+
+(defn AND
+  "Returns a list of documents matching all given terms."
+  ([index term] (conjunction index '(term)))
+  ([index term & terms] (conjunction index (conj terms term))))
 
 (defn -main [& args]
   (let [db (make-database (relative->absolute "data/RiderHaggard/raw"))]

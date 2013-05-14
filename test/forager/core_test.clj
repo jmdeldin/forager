@@ -46,3 +46,21 @@
     (let [doc-id 1
           exp-keys (set '("foo" "bar"))]
       (is (= exp-keys (set (keys (index-lines '("foo" "bar") doc-id {}))))))))
+
+(deftest test-conjunction
+  (let [doc-set #{1}
+        index   {"foo" doc-set "bar" doc-set}]
+    (testing "with a singleton term list"
+      (is (= doc-set (conjunction index '("foo")))))
+    (testing "with multiple matching terms from the same document"
+      (is (= doc-set (conjunction index '("foo" "bar")))))
+    (testing "with only one match"
+      (is (= #{} (conjunction index '("foo" "baz")))))))
+
+(deftest test-boolean-retrieval
+  (testing "AND"
+    (let
+        [doc1 "the quick brown fox jumped over the lazy dog"
+         doc2 "the quick brown cow jumped over the lazy squid"
+         index (index-document doc2 2 (index-document doc1 1 {}))]
+      (is (= #{1} (AND index "quick" "fox"))))))
