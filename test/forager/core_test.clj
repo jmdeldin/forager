@@ -13,6 +13,8 @@
     (is (= "foo" (normalize-term "\n\r foo\t "))))
   (testing "downcases words"
     (is (= "foo" (normalize-term "FOO"))))
+  (testing "removes non-alphanumeric characters"
+    (is (= "foo" (normalize-term "f-oo'!"))))
   (testing "stemming words"
     (is (= "argu" (normalize-term "arguing"))))
   (testing "operating on a collection of terms"

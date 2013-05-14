@@ -22,9 +22,17 @@
     []
     (string/split document #"\s+")))
 
+(defn remove-nonalphanumerics
+  "Retains only A-Z and 0-9 characters."
+  [term]
+  (clojure.string/replace term #"[^a-zA-Z0-9]" ""))
+
 (def normalizers
   "Vector of functions to apply successively to a term."
-  [clojure.string/trim clojure.string/lower-case porter/stem])
+  [clojure.string/trim
+   clojure.string/lower-case
+   remove-nonalphanumerics
+   porter/stem])
 
 (defn normalize-term
   "Applies a series of transformations to a term."
