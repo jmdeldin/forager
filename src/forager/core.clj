@@ -42,7 +42,7 @@
 (defn normalize
   "Normalizes a collection of terms."
   [terms]
-  (map normalize-term terms))
+  (remove empty? (map normalize-term terms)))
 
 (defn sorted-upsert
   "Associates a key with a value stored in a sorted-set."

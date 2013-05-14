@@ -20,7 +20,9 @@
   (testing "operating on a collection of terms"
     (let [input '("FOO" "ARGUING" "BAR")
           exp '("foo" "argu" "bar")]
-      (is (= exp (normalize input))))))
+      (is (= exp (normalize input)))))
+  (testing "operating on a collection of ignoreable terms"
+    (is (= '("foo") (normalize '("FOO!!!;" "'-.."))))))
 
 (deftest test-sorted-upsert
   (testing "into an empty hashmap"
