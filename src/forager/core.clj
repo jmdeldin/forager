@@ -117,7 +117,7 @@
 
 (defn AND
   "Returns a list of documents matching all given terms."
-  ([index term] (conjunction index '(term)))
+  ([index term] (conjunction index (conj '() term)))
   ([index term & terms] (conjunction index (conj terms term))))
 
 (defn -main [& args]

@@ -58,9 +58,11 @@
       (is (= #{} (conjunction index '("foo" "baz")))))))
 
 (deftest test-boolean-retrieval
-  (testing "AND"
-    (let
-        [doc1 "the quick brown fox jumped over the lazy dog"
-         doc2 "the quick brown cow jumped over the lazy squid"
-         index (index-document doc2 2 (index-document doc1 1 {}))]
-      (is (= #{1} (AND index "quick" "fox"))))))
+  (let
+      [doc1 "the quick brown fox jumped over the lazy dog"
+       doc2 "the quick brown cow jumped over the lazy squid"
+       index (index-document doc2 2 (index-document doc1 1 {}))]
+    (testing "AND"
+      (is (= #{1} (AND index "dog")))
+      (is (= #{1} (AND index "quick" "fox")))
+      (is (= #{} (AND index "fox" "cow"))))))
