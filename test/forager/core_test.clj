@@ -57,6 +57,16 @@
     (testing "with only one match"
       (is (= #{} (conjunction index '("foo" "baz")))))))
 
+(deftest test-disjunction
+  (let [doc-set #{1}
+        index   {"foo" doc-set "bar" doc-set}]
+    (testing "with a singleton term list"
+      (is (= doc-set (disjunction index '("foo")))))
+    (testing "with multiple matching terms from the same document"
+      (is (= doc-set (disjunction index '("foo" "bar")))))
+    (testing "with only one match"
+      (is (= doc-set (disjunction index '("foo" "baz")))))))
+
 (deftest test-boolean-retrieval
   (let
       [doc1 "the quick brown fox jumped over the lazy dog"
@@ -65,4 +75,6 @@
     (testing "AND"
       (is (= #{1} (AND index "dog")))
       (is (= #{1} (AND index "quick" "fox")))
-      (is (= #{} (AND index "fox" "cow"))))))
+      (is (= #{}  (AND index "fox" "cow"))))
+    (testing "OR"
+      (is (= #{1 2} (OR index "fox" "cow"))))))

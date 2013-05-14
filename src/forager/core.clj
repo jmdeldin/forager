@@ -102,6 +102,31 @@
   [database id]
   (get (get database :ids) id))
 
+(defn retrieve
+  "Private API for performing a Boolean queries.
+
+  handle-match is a function(old-matches, new-matches) called when a doc-id is
+  found for a stemmed term.
+
+  handle-no-docs is a function(old-matches) called when no documents are found
+  for a stemmed term."
+  [index terms handle-match handle-no-docs]
+  ((fn [term-xs matches]
+    (if (empty? term-xs)
+      matches
+      (if-let [doc-ids (get index (stem (first term-xs)))]
+        (recur (rest term-xs) (if (empty? matches) doc-ids
+                                (handle-match matches doc-ids)))
+        (recur (rest term-xs) (handle-no-docs matches)))))
+   terms
+   #{}))
+
+;; (defn conjunction
+;;   "Private API for performing a Boolean-AND query."
+;;   [index terms]
+;;   (retrieve index terms
+;;             (fn [old-ids new-ids] (clojure.set/intersection old-ids new-ids))
+;;             (fn [old-ids] #{})))
 (defn conjunction
   "Private API for performing a Boolean-AND query."
   ([index terms] (conjunction index terms #{}))
@@ -113,12 +138,28 @@
                   (if (empty? matched-docs)
                     doc-ids
                     (clojure.set/intersection matched-docs doc-ids)))
-           (recur index (rest terms) #{})))))
+                      (recur index (rest terms) #{})))))
+
+(defn disjunction
+  "Private API for performing a Boolean-OR query."
+  [index terms]
+  (retrieve index terms
+            (fn [old-ids new-ids] (clojure.set/union old-ids new-ids))
+            (fn [old-ids] old-ids)))
+
+(defn run-boolean-query
+  [index term terms function]
+  (function index (conj terms term)))
 
 (defn AND
   "Returns a list of documents matching all given terms."
-  ([index term] (conjunction index (conj '() term)))
-  ([index term & terms] (conjunction index (conj terms term))))
+  [index term & terms]
+  (run-boolean-query index term terms conjunction))
+
+(defn OR
+  "Returns a list of documents any given terms."
+  [index term & terms]
+  (run-boolean-query index term terms disjunction))
 
 (defn -main [& args]
   (let [db (make-database (relative->absolute "data/RiderHaggard/raw"))]
