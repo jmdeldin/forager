@@ -71,25 +71,51 @@
           index
           lines))
 
+(defn index-tokens
+  "Indexes a list of already normalized tokens."
+  [index tokens doc-id]
+  (reduce (fn [mod-index token]
+            (sorted-upsert mod-index token doc-id))
+          index
+          tokens))
+
 (defn list-directory
   "Returns a list of all files in a directory."
   [directory]
   ;; file-seq is lazy -- we want all of the files at once
-  (doall (file-seq (io/file directory))))
+  (doall (filter (fn [f] (.isFile f)) (file-seq (io/file directory)))))
 
-(defstruct Database :ids :filenames :last-id)
+(defstruct Database :ids :filenames :last-id :vocabulary :index :documents)
 
-(defn make-database
-  "Returns a bidirectional struct enabling both ID and filename lookups."
+(defn make-database [&{:keys [ids filenames last-id vocabulary index documents]
+                       :or {ids {} filenames {} last-id 0 vocabulary #{} index {} documents {}}}]
+  {:ids ids :filenames filenames :last-id last-id :vocabulary vocabulary :index index :documents documents})
+
+(defn index-directory
   [directory]
   (reduce (fn [mod-db file]
-            (let [new-id (inc (get mod-db :last-id 0))
-                  filename (str file)]
-              (struct Database
-                      (assoc (get mod-db :ids) new-id filename)
-                      (assoc (get mod-db :filenames) filename new-id)
-                      new-id)))
-          (struct Database {} {} 0)
+            (println "Indexing" (str file))
+            (let [new-id (inc (get mod-db :last-id))
+                  filename (str file)
+                  new-ids (assoc (get mod-db :ids) new-id filename)
+                  new-filenames (assoc (get mod-db :filenames) filename new-id)
+                  lines (read-file filename)
+                  tokens (flatten (map #(normalize (tokenize %)) lines))
+                  new-documents (assoc (get mod-db :documents) new-id tokens)
+                  new-index (index-tokens (get mod-db :index) tokens new-id)
+                  new-vocabulary (clojure.set/union (get mod-db :vocabulary)
+                                                    (set (keys new-index)))
+              ]
+              (make-database
+               :ids new-ids
+               :filenames new-filenames
+               :last-id new-id
+               :index new-index
+               :vocabulary new-vocabulary
+               :documents new-documents)
+
+            ))
+          (make-database)
           (list-directory directory)))
 
 (defn filename->id

@@ -41,6 +41,9 @@
   (testing "indexing an empty string"
     (is (= {} (index-document "" 1 {})))))
 
+(deftest test-index-tokens
+  (is (= {"foo" #{1} "bar" #{1}} (index-tokens {} '("foo" "bar") 1))))
+
 (deftest test-index-lines
   (testing "indexing a list of strings belonging to a document"
     (let [doc-id 1
