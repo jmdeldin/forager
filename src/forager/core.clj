@@ -175,8 +175,38 @@
   [index term & terms]
   (run-boolean-query index term terms disjunction))
 
-(defn -main [& args]
-  (let [db (make-database (relative->absolute "data/RiderHaggard/raw"))]
-    (println "RESULTS")
-    (println (filename->id db "/vagrant/src/forager/data/RiderHaggard/raw/Moon of Israel 2856.txt"))
-    (println (id->filename db 32))))
+(defn fetch-token-frequencies
+  "coll -- hash of term => {doc-id => value}"
+  [coll doc-id tokens]
+  (reduce (fn [mod-coll token->count]
+            (let [token (first token->count)
+                  old-doc-hash (get mod-coll token {})
+                  old-counts (get old-doc-hash doc-id 0)
+                  new-counts (+ old-counts (last token->count))
+                  new-doc-hash (assoc old-doc-hash doc-id new-counts)
+                  ]
+              (assoc mod-coll token new-doc-hash)))
+              ;; gets a {}
+          coll (frequencies tokens)))
+
+(defn fetch-tf
+  [database]
+  ;; want a hash in the end
+  (reduce (fn [mod-tf doc-id]
+            (fetch-token-frequencies mod-tf doc-id (get-in database [:documents doc-id])))
+          {}
+          (keys (get database :documents))))
+
+(defn compute-df
+  [tf-hash term]
+  (float (count (get tf-hash term))))
+
+(defn compute-idf
+  [tf-hash term]
+  (let [num-docs (float (count #{vals tf-hash}))]
+    (Math/log10 (/ num-docs (compute-df tf-hash term)))))
+
+(defn tf-idf
+  [tf-hash term doc-id]
+  (let [tf (get-in tf-hash [term doc-id])]
+    (* tf (compute-idf tf-hash term))))
