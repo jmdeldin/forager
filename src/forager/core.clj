@@ -186,12 +186,10 @@
                   new-doc-hash (assoc old-doc-hash doc-id new-counts)
                   ]
               (assoc mod-coll token new-doc-hash)))
-              ;; gets a {}
           coll (frequencies tokens)))
 
 (defn fetch-tf
   [database]
-  ;; want a hash in the end
   (reduce (fn [mod-tf doc-id]
             (fetch-token-frequencies mod-tf doc-id (get-in database [:documents doc-id])))
           {}
